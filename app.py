@@ -15,12 +15,8 @@ if uploaded_file is not None:
         f.write(uploaded_file.getbuffer())
     
     try:
-        # Convert the file to PCM WAV format
+        # Only measure audio duration with pydub if needed, but skip conversion
         audio = AudioSegment.from_wav(audio_file_path)
-        audio.export("converted_audio.wav", format="wav", parameters=["-acodec", "pcm_s16le"])
-        converted_audio_path = "converted_audio.wav"
-
-        # Measure audio duration using pydub
         duration_seconds = len(audio) / 1000.0
         st.write(f"Audio duration (pydub): {duration_seconds:.3f} seconds")
 
@@ -28,8 +24,8 @@ if uploaded_file is not None:
         recognizer = sr.Recognizer()
 
         # Load audio file for speech recognition
-        with sr.AudioFile(converted_audio_path) as source:
-            recognizer.adjust_for_ambient_noise(source, duration=0.5)  # Adjust for ambient noise
+        with sr.AudioFile(audio_file_path) as source:
+            recognizer.adjust_for_ambient_noise(source, duration=0.5)
             audio_data = recognizer.record(source)
 
         # Recognize speech using Google Speech Recognition
